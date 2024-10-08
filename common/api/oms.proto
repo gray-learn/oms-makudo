@@ -1,0 +1,36 @@
+syntax ="proto3";
+
+option go_package = "github.com/sikozonpc/commons/api";
+
+package api;
+
+message Order  {
+    string ID   = 1;    
+    string custId = 2;
+    string status = 3;
+    repeated Item Items = 4;   
+}
+service OrderService {
+    rpc CreateOrder(CreateOrderRequest) returns(Order);
+}
+
+message Item {
+    string ID = 1;
+    string Name = 2;
+    int32 Quantity = 3;
+    string PriceID = 4;
+}
+
+message ItemWithQuantity {
+    string ID = 1;
+    int32 quantity = 2;
+}
+
+message CreateOrderRequest {
+    string custId = 1;
+    repeated ItemWithQuantity items = 2;
+}
+
+message CreateOrderResponse {
+    string orderId = 1;
+}

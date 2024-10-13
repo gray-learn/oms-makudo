@@ -1,4 +1,4 @@
-package gateway
+package common
 
 import (
 	"encoding/json"
@@ -16,5 +16,5 @@ func ReadJSON(r *http.Request, data any) error {
 }
 
 func WriteError(w http.ResponseWriter, status int, message string) {
-	WriteJSON(w, status, map[string]string{"error", message})
+	WriteJSON(w, status, map[string]string{"error": message})
 }

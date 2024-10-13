@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	common "github.com/sikozonpc/commons"
+	pb "github.com/sikozonpc/commons/api"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -17,13 +19,31 @@ var (
 
 func main() {
 
-	conn, err := grpc.Dial(orderServiceAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	// proxyCA := "/var/tmp/fullchain.pem" // CA cert that signed the proxy
+	// f, err := os.ReadFile(proxyCA)
+	// p := x509.NewCertPool()
+	// p.AppendCertsFromPEM(f)
+	// tlsConfig := &tls.Config{
+	// 	RootCAs: p,
+	// }
+
+	conn, err := grpc.NewClient(orderServiceAddr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		// grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{})),
+		grpc.WithDefaultCallOptions(
+			grpc.MaxCallRecvMsgSize(1024*1024*50), // 50 MB
+		),
+		// orderServiceAddr,
+		// grpc.WithTransportCredentials(insecure.NewCredentials())
+	)
+
 	if err != nil {
 		log.Fatalf("failed to dial order service: %v", err)
 	}
 	defer conn.Close()
 
 	log.Println("Dialing orders service at", orderServiceAddr)
+	c := pb.NewOrderServiceClient(conn)
 
 	mux := http.NewServeMux() // http router
 	handle := NewHandler(c)
